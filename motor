@@ -1,0 +1,84 @@
+//2019/03/20
+#include "sys.h"
+#include "motor.h"
+#include "delay.h"
+float ange;
+float angle;
+float a;
+float b;
+extern u32 movelength;
+
+void MOTOR_Init(void){ //电机的接口初始化
+	GPIO_InitTypeDef  GPIO_InitStructure; 	
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);       
+    GPIO_InitStructure.GPIO_Pin = MOTOR1H | MOTOR1L | MOTOR2H | MOTOR2L; //选择端口号（0~15或all）                        
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; //选择IO接口工作方式       
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; //设置IO接口速度（2/10/50MHz）    
+	GPIO_Init(MOTORPORT,&GPIO_InitStructure);
+	GPIO_ResetBits(MOTORPORT,MOTOR1H | MOTOR1L | MOTOR2H | MOTOR2L | MOTOR3H | MOTOR3L | MOTOR4H | MOTOR4L); //都为低电平（0） 初始为关继电器				
+}
+void MOTOR_FORAD(u8 c){
+	GPIO_WriteBit(MOTORPORT,MOTOR1H | MOTOR1L | MOTOR2H | MOTOR2L,(BitAction)(!c));//通过参数值写入接口
+	GPIO_WriteBit(MOTORPORT,MOTOR1H |  MOTOR2H ,(BitAction)(c));
+}   
+
+void MOTOR_BACK(u8 c){
+	GPIO_WriteBit(MOTORPORT,MOTOR1H | MOTOR1L | MOTOR2H | MOTOR2L,(BitAction)(!c));//通过参数值写入接口
+	GPIO_WriteBit(MOTORPORT,MOTOR1L |  MOTOR2L ,(BitAction)(c)); 
+}
+
+void MOTOR_TRIGHT(u8 c){
+	GPIO_WriteBit(MOTORPORT,MOTOR1H | MOTOR1L | MOTOR2H | MOTOR2L,(BitAction)(!c));//通过参数值写入接口
+	while(angle!=ange){
+	b=movelength-a;
+	angle=(b/(3.1415*2*15))*360;//15为履带中心距	
+	}
+	GPIO_WriteBit(MOTORPORT,MOTOR1H |  MOTOR2L ,(BitAction)(c));
+	a=0;b=0;angle=0;	
+}
+
+void MOTOR_TLEFT(u8 c){
+	a=movelength;
+	GPIO_WriteBit(MOTORPORT,MOTOR1H | MOTOR1L | MOTOR2H | MOTOR2L,(BitAction)(!c));//通过参数值写入接口	
+	while(angle!=ange){
+	b=movelength-a;
+	angle=(b/(3.1415*2*15))*360;//15为履带中心距
+	}
+	GPIO_WriteBit(MOTORPORT,MOTOR1L |  MOTOR2H ,(BitAction)(c));
+	a=0;b=0;angle=0;
+}
+
+///////////////////////////////////////////////////////////////////////////
+////////履带////////////*/
+
+void MOTOR3_INSIDE(u8 c){
+	GPIO_WriteBit(MOTORPORT,MOTOR3H | MOTOR3L,(BitAction)(!c));//通过参数值写入接口
+	GPIO_WriteBit(MOTORPORT,MOTOR3H  ,(BitAction)(c)); 
+	 }
+
+void MOTOR3_OUTSIDE(u8 c){
+	GPIO_WriteBit(MOTORPORT,MOTOR3H | MOTOR3L ,(BitAction)(!c));//通过参数值写入接口
+	GPIO_WriteBit(MOTORPORT,MOTOR3L  ,(BitAction)(c)); 
+	}
+
+void MOTOR4_INSIDE(u8 c){
+	GPIO_WriteBit(MOTORPORT, MOTOR4H | MOTOR4L,(BitAction)(!c));//通过参数值写入接口
+	GPIO_WriteBit(MOTORPORT,MOTOR4H ,(BitAction)(c)); 
+	}
+
+void MOTOR4_OUTSIDE(u8 c){
+	GPIO_WriteBit(MOTORPORT,MOTOR4H | MOTOR4L,(BitAction)(!c));//通过参数值写入接口
+	GPIO_WriteBit(MOTORPORT,MOTOR4L ,(BitAction)(c));  
+	}
+
+/*
+选择IO接口工作方式：
+GPIO_Mode_AIN 模拟输入
+GPIO_Mode_IN_FLOATING 浮空输入
+GPIO_Mode_IPD 下拉输入
+GPIO_Mode_IPU 上拉输入
+GPIO_Mode_Out_PP 推挽输出
+GPIO_Mode_Out_OD 开漏输出
+GPIO_Mode_AF_PP 复用推挽输出
+GPIO_Mode_AF_OD 复用开漏输出
+*/
