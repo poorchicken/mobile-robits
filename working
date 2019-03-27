@@ -1,0 +1,54 @@
+#include "sys.h"
+#include "work.h"
+#include "motor.h"
+#include "ch.h"
+
+extern u32 movelength;
+extern flaot ange;
+float lengthf;
+float lengthl;
+float lengthr;
+float A;
+float B=0;
+
+u8 s=1;//方向标志
+u8 d=1;
+
+while(working&&power){
+	lengthf = Senor_Using_f(1);
+	lengthl = Senor_Using_l(1);	
+	lengthr = Senor_Using_r(1);
+	if (lengthf>dlength&&lengthl>dlength&&lengthr>dlength){
+		s=1;
+		ange=90;
+		MOTOR_TRIGHT(s);
+		while(working&&power&&(!end)){
+			nomralwork (1);
+			s=!s;
+		}
+	}
+}
+
+
+
+void nomralwork (u8 c){
+	MOTOR_FORAD(1);
+	lengthf = Senor_Using_f(1);
+	while(lengthf>dlength){
+		if(d=1){
+			MOTOR_FORAD(1);
+			d=!d;	
+		}
+		lengthf = Senor_Using_f(1);		
+	}
+	d=!d;
+	MOTOR_TRIGHT(!s);
+	MOTOR_TLEFT(s);
+	A=movelength;
+	MOTOR_FORAD(1);
+	while((A=(movelength-A))<15){//15为扫地宽度
+			
+	}
+	MOTOR_TRIGHT(!s);
+	MOTOR_TLEFT(s);
+}
